@@ -1,16 +1,17 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import {Consumer} from './context';
 
-export default class xxx extends React.Component {
-  static contextTypes = {
-    history:PropTypes.object
-  }
-
-  componentWillMount() {
-    this.context.history.push(this.props.to);
-  }
-
+export default class Redirect extends React.Component {
   render() {
-    return null;
+    return (
+      <Consumer>
+        {
+          val => {
+            val.history.push(this.props.to);
+            return null;
+          }
+        }
+      </Consumer>
+    );
   }
 }

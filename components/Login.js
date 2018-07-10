@@ -1,14 +1,17 @@
 import React from 'react';
 
-export default class xxx extends React.Component{
-  handleClick=()=>{
-    localStorage.setItem('login',true);
+export default class Login extends React.Component{
+  handleClick = () => {
+    localStorage.setItem('logined', true);
     this.props.history.push(this.props.location.state.from);
-  }
+  };
+
   render(){
+
     return (
       <div>
-        <button onClick={this.handleClick} className="btn btn-primary">登录</button>
+        >Login
+        <button onClick={this.handleClick}>登录</button>
       </div>
     )
   }

@@ -1,63 +1,68 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import {Consumer} from './context';
 import pathToRegexp from 'path-to-regexp';
 
-export default class xxx extends React.Component {
-  constructor(props) {
-    super(props);
-    let {path} = props; //user/detail/:id
-    this.keys = [];
-    this.regexp = pathToRegexp(path, this.keys, {end: false});
-    this.keys = this.keys.map(key => key.name);
-  }
+export default class Route extends React.Component {
 
-  static contextTypes = {
-    location: PropTypes.object
-    , history: PropTypes.object
-  }
 
   render() {
-    let {location} = this.context;
-    let result = location.pathname.match(this.regexp);
-    let {path, component: Component, render, children} = this.props;
-    let props = {
-      location
-      , history: this.context.history
-    };
 
-    if (result) {
-      let [url, ...values] = result;
+    return (
+      <Consumer>
+        {
+          value => {
+            let {location: {pathname}} = value
 
-      props.match = {
-        url //实际的路径
-        , path //route上的path
-        , params: this.keys.reduce((memo, key, idx) => {
-          memo[key] = values[idx];
-          return memo;
-        }, {})
-      };
-      if (render) {
-        return render(props);
-      } else if (Component) {
-        return <Component {...props}/>
-      } else if (children) {
-        return children(props);
-      }
-      return null;
+              //exact为undefined的话在pathToRegexp的end配置项中作用并不等于false
+              // ，它的效果等同于true
+              , {path = '/', component: Component, exact = false, render, children} = this.props
+              , keys = []
+              , props = {
+                location: value.location
+                , history: value.history
+              }
+              , regexp
+              , result;
 
-    } else {
-      if (children) {
-        return children(props);
-      } else {
-        return null;
-      }
-    }
-    // console.log(this.context);
 
-    // if(path === pathname||pathname.startsWith(path)){
-    //   return <Component location={this.context.location} history={this.context.history}/>;
-    // }else{
-    //   return null;
-    // }
+            regexp = pathToRegexp(path, keys, {end: exact});
+            result = pathname.match(regexp);
+
+            // console.log('pathname:', pathname, 'path:', path);
+            if (result) { //result->[匹配上的字符串，第一个分组,...,匹配上的字符串的第一个字符在匹配项的索引位置，被匹配的字符串]
+              let [, ...values] = result
+                , params;
+
+              keys = keys.map(key => key.name);
+              params = keys.reduce((memo, name, index) => {
+                return (memo[name] = values[index], memo);
+              }, {});
+
+              props.match = {url: pathname, path, params, exact};
+
+              if (Component) {
+                return <Component {...props}/>
+
+              } else if (render) {
+                return render(props);
+
+              } else if (children) {
+                return children(props)
+
+              } else {
+                return null
+              }
+
+            } else {
+              if(children){
+                return children(props)
+              }else{
+                return null;
+              }
+            }
+          }
+        }
+      </Consumer>
+    )
   }
 }

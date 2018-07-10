@@ -1,21 +1,31 @@
-import React,{Component}from 'react';
-// /user/detail/1
-// /user/detail/:id
-export default class UserDetail extends Component{
-  constructor(){
-    super();
-    this.state = {user:{}};
-  }
+import React from 'react';
+import api from './api';
+
+export default class UserDetail extends React.Component {
+  state = {
+    user: {}
+  };
+
   componentDidMount(){
-    let usersStr = localStorage.getItem('users');
-    let users = usersStr?JSON.parse(usersStr):[];
-    let user = users.find(user=>user.id == this.props.match.params.id);
+    let user = this.props.location.state.user;
+
+    if(!user){
+      let id = this.props.match.params.id;
+
+      user = api.getUser(id);
+    }
+
     this.setState({user});
   }
-  render(){
+
+  render() {
+    let {user} = this.state;
+
     return (
       <div>
-        {this.state.user.id}:{this.state.user.username}
+        <p>ID:{user.id}</p>
+        <p>用户名:{user.username}</p>
+        <p>邮箱:{user.email}</p>
       </div>
     )
   }

@@ -1,30 +1,50 @@
 import React from 'react';
-import {Route,Link}from '../react-router-dom';
+import api from './api';
+import {Prompt} from '../react-router-dom';
 
-export default class xxx extends React.Component{
-  handleSubmit=(event)=>{
-    event.preventDefault();
-    let username = this.username.value;
-    let user = {id:Date.now(),username};
-    let usersStr = localStorage.getItem('users');
-    let users = usersStr?JSON.parse(usersStr):[];
-    users.push(user);
-    localStorage.setItem('users',JSON.stringify(users));
-    this.props.history.push('/user/list');
-  }
-  render(){
+export default class UserAdd extends React.Component {
+  state = {
+    isBlocking: false
+  };
+
+  handleSubmit = (ev) => {
+    ev.preventDefault();
+    this.setState({isBlocking: false}, () => {
+      let username = this.username.value;
+      let email = this.email.value;
+      let user = {username, email};
+
+      api.createUser(user);
+
+      //push也可以push一个对象，location对象
+      this.props.history.push('/user/list');
+    });
+  };
+
+  render() {
     return (
-      <div>
-        <form onSubmit={this.handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="">用户名</label>
-            <input ref={input=>this.username=input} type="text" className="form-control"/>
-          </div>
-          <div className="form-group">
-            <input type="submit" className="btn btn-primary"/>
-          </div>
-        </form>
-      </div>
-    )
+      <form onSubmit={this.handleSubmit}>
+        <Prompt
+          when={this.state.isBlocking}
+          message={
+            loc=>`请问你是否确定要切换到${loc.pathname}?`
+          }
+        />
+
+        <label htmlFor="username">用户名</label>
+        <input id="username" type="text"
+               ref={x => this.username = x}
+               onChange={() => this.setState({isBlocking: true})}
+        />
+
+        <label htmlFor="email">邮箱</label>
+        <input id="email" type="email"
+               ref={x => this.email = x}
+               onChange={() => this.setState({isBlocking: true})}
+        />
+
+        <input type="submit"/>
+      </form>
+    );
   }
 }

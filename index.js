@@ -1,50 +1,45 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './components/App.js';
-// import {HashRouter as Router,Route} from 'react-router-dom';
-// import UserAdd from "./components/UserAdd";
-// import UserList from "./components/UserList";
-// import UserDetail from "./components/UserDetail";
-import {Route,Switch} from './react-router-dom';
-import User from './components/User.js';
-import Protected from './components/Protected.js';
-import Login from './components/Login.js';
+import {HashRouter as Router, Route, Link, Switch, Redirect} from './react-router-dom';
+import Home from './components/Home';
+import User from './components/User';
+import Profile from './components/Profile';
+import Login from './components/Login';
 
-let Home = ()=><div>home</div>;
-// let UserAdd = ()=><div>UserAdd</div>;
-// let UserList = ()=><div>UserList</div>;
+import Protected from './components/Protected';
+import MenuLink from './components/MenuLink';
+import NavHeader from "./components/NavHeader";
 
-// let User = (props,context)=>{
-//   console.log(props);
-//   return <div>User</div>;
-// };
-// class User extends React.Component{
-//   render(){
-//     return (
-//       <div>
-//         {null}
-//         <div>User</div>
-//         <Route path='/user/add' component={UserAdd}/>
-//         <Route path='/user/list' component={UserList}/>
-//       </div>
-//     )
-//   }
-// }
+//A <Router> may have only one child element
+ReactDOM.render(
+  <Router>
+    <div>
+      <NavHeader/>
+      <ul>
+        <MenuLink to='/' label='首页' exact={true}/>
+        <MenuLink to='/user' label='用户管理' />
+        <MenuLink to='/profile' label='个人设置'/>
 
-let Profile = ()=><div>detail</div>;
+        {/*<li>*/}
+          {/*<Link to='/'>首页</Link>*/}
+        {/*</li>*/}
+        {/*<li>*/}
+          {/*<Link to='/user'>用户管理</Link>*/}
+        {/*</li>*/}
+        {/*<li>*/}
+          {/*<Link to='/profile'>个人设置</Link>*/}
+        {/*</li>*/}
+      </ul>
 
-ReactDOM.render(<App>
-  <Switch>
-    <Route key='1' path='/home' component={Home}/>
-    <Route key='2' path='/user'component={User}/>
-    <Route key='3' path='/login'component={Login}/>
-    <Protected key='4' path='/profile' component={Profile}/>
-  </Switch>
-</App>, document.getElementById('root'));
+      <Switch>
+        <Route path="/" component={Home} exact/>
+        <Route path="/user" component={User}/>
+        <Route path="/profile" component={Profile}/>
+        <Route path="/login" component={Login}/>
+        <Protected path="/profile" component={Profile}/>
+        {/*<Redirect to='/'/>*/}
+      </Switch>
 
-// ReactDOM.render(
-//   <Router>
-//     <Route path='/user' component={User}/>
-//   </Router>
-//   ,window.root
-// )
+    </div>
+  </Router>
+  , document.getElementById('root'));

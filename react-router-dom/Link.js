@@ -1,15 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types'
+import {Consumer} from './context';
 
-export default class xxx extends React.Component{
-  static contextTypes = {
-    history:PropTypes.object
-  };
-  render(){
+export default class Link extends React.Component {
+  render() {
+    let {type, children, to, ...attrs} = this.props;
+
+    if(!type) type = 'a';
+
     return (
-      <a onClick={()=>this.context.history.push(this.props.to)}>
-        {this.props.children}
-      </a>
-    )
+      <Consumer>
+        {
+          value => {
+            let {history: {push}} = value;
+            attrs.onClick = () => push(to);
+
+            return React.createElement(type, attrs, children);
+          }
+        }
+      </Consumer>
+    );
   }
 }

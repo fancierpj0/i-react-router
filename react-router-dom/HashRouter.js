@@ -1,55 +1,91 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import {Provider} from './context';
 
-export default class xxx extends React.Component{
-  static childContextTypes = {
-    location:PropTypes.object
-    ,history:PropTypes.object
-  }
-
-  constructor(props){
-    super(props);
-    this.state = {
-      location:{
-        pathname:window.location.hash.slice(1)||'/'
-        ,state:{}
-      }
+export default class HashRouter extends React.Component {
+  //每当地址栏里的锚点发生改变(or history的历史栈发生改变)
+  //，都需要重新匹配
+  state = {
+    location: {
+      // #/ #/user
+      pathname: window.location.hash ? window.location.hash.slice(1) : '/'
     }
+  };
+
+  componentDidMount() {
+    if (!window.location.hash) {
+      window.location.hash = '#/'
+    }
+
+    window.addEventListener('hashchange', () => {
+
+      if (!window.location.hash) return window.location.hash = '#/';
+
+      // console.log('window.location.hash:', window.location.hash);
+      this.setState({
+        location: {
+          ...this.state.location
+
+          //地址栏里#以后的路径
+          , pathname: window.location.hash ? window.location.hash.slice(1) : '/'
+        }
+      });
+    });
   }
 
-  getChildContext(){
-    let that = this;
-    return {
-      location:this.state.location
-      ,history:{
-        push(path){
-          if(typeof path == 'object'){
-            // state 是用来保存状态的
-            let {pathname,state} = path;
-            that.setState({location:{...that.state.location,state}},()=>{
-              window.location.hash = pathname;
-            })
-          }else{
-            window.location.hash = path; //会自动添加'#'
+  render() {
+    let self = this
+
+      , value = {
+      location: self.state.location
+
+      , history: {
+        push(to) {
+          //支持prompt
+          if(self.block){
+            let ok = window.confirm(self.block(typeof to === 'object' ? to : {pathname: to}));
+            if(ok){
+              self.block = false;
+            }else{
+              return;
+            }
           }
+
+          if (typeof to === 'object') {
+            let {pathname, state} = to;
+
+            self.setState({
+              ...self.state
+              , location: {
+                ...self.state.location
+                , pathname
+                , state
+              }
+            }, () => {
+              // console.log('this.state in hashRouter', this.state);
+              window.location.hash = pathname;
+            });
+
+            //to='/xx' 字符串形式
+          } else {
+            window.location.hash = to;
+          }
+
+        }
+        , goBack() {
+          window.history.back();
+        }
+        , block(message) {
+          self.block = message;
+        }
+        , unblock() {
+          self.block = null;
         }
       }
-    }
-  }
 
-  componentDidMount(){
-    window.location.hash = this.state.location.pathname;
-    // setState对象合并只会比较合并一层，
-    let render = ()=>{
-      this.setState({location:{...this.state.location,pathname:window.location.hash.slice(1)||'/'}});
-    }
-    window.addEventListener('hashchange',render);
-  }
+    };
 
-
-  render(){
-    return this.props.children;
+    return <Provider value={value}>
+      {this.props.children}
+    </Provider>;
   }
 }
-
-

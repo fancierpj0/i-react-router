@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<!--
+  锚点做前端路由的好处在于页面不会刷新
+-->
+<a href="#/a">a</a>
+<a href="#/b">b</a>
+
+<div id="container">
+
+</div>
+
+<!--
+  #hash 的问题在于 会强制定位
+  -->
+<script>
+
+  let container = document.querySelector('#container');
+
+  window.addEventListener('hashchange', function (ev) {
+    console.log(ev);
+
+    container.innerHTML = event.newURL;
+  });
+</script>
+</body>
+</html>
